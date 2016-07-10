@@ -31,11 +31,13 @@ public:
     inline void SetPos(glm::vec3& pos) { m_pos = pos; }
     inline void SetRot(glm::vec3& rot) { m_rot = rot; }
     inline void SetScale(glm::vec3& scale) { m_scale = scale; }
-protected:
-private:
+
     glm::vec3 m_pos;
     glm::vec3 m_rot;
     glm::vec3 m_scale;
+protected:
+private:
+
 };
 
 

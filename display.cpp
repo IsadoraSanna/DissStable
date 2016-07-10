@@ -69,13 +69,13 @@ void Display::Update(Transform &transform)
                 m_isClosed = true;
             }
             else if(keys[SDL_SCANCODE_LEFT])
-                transform.GetRot().y += 3;
+                transform.m_rot += glm::vec3(0.f,-0.1f,0.f);
             else if (keys[SDL_SCANCODE_UP])
-                transform.GetRot().x += 3;
+               transform.m_rot += glm::vec3(0.1f,0.f,0.f);
             else if (keys[SDL_SCANCODE_RIGHT])
-                transform.GetRot().y -= 3;
+                transform.m_rot += glm::vec3(0.f,0.1f,0.f);
             else if (keys[SDL_SCANCODE_DOWN])
-                transform.GetRot().x -= 3;
+                transform.m_rot += glm::vec3(-0.1f,0.f,0.f);
             else if (keys[SDL_SCANCODE_RETURN])
                 projection = ORTHOGRAPHIC_P;
             break;
@@ -92,10 +92,10 @@ void Display::Update(Transform &transform)
         case SDL_MOUSEMOTION:
             if (buttonPressed) {
                 std::cout << "trascino bottone premuto" << distanceY << ".. " << std::endl;
-                distanceX = abs(e.motion.x - firstX);
-                distanceY = abs(e.motion.y - firstY);
-                transform.GetRot().y =  distanceY;
-                transform.GetRot().x = distanceX;
+                distanceX = (e.motion.x - firstX);
+                distanceY = (e.motion.y - firstY);
+                transform.m_rot += glm::vec3(0.f,distanceY/100,0.f);
+                //transform.m_rot += glm::vec3(distanceX/100,0.f,0.f);
             }
             break;
         case SDL_MOUSEBUTTONUP:

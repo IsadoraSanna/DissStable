@@ -11,12 +11,9 @@ class Camera
 public:
     virtual ~Camera();
 
-    enum projectionType{
-        PERSPECTIVE_P,
-        ORTHOGRAPHIC_P
-    };
+    Camera(const Mesh& mesh, float fov, float aspect, float zNear, float zFar);
+    Camera(glm::vec3 pos,const Mesh& mesh, float aspect, glm::vec3 up);
 
-    Camera(glm::vec3 pos, const Mesh& mesh, float fov, float aspect, float zNear, float zFar, Camera::projectionType pType);
     glm::mat4 GetViewProjection() const;
     void RotateY(float angle);
 

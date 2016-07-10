@@ -1,24 +1,31 @@
 #include "camera.h"
 
-Camera::Camera(glm::vec3 pos,const Mesh& mesh, float fov, float aspect, float zNear, float zFar, Camera::projectionType pType)
+//for perspective proj
+Camera::Camera(const Mesh& mesh, float fov, float aspect, float zNear, float zFar)
 {
-    switch(pType){
-        case 0:
-            m_projection = glm::perspective(fov, aspect, zNear, zFar);
-            break;
-        case 1:
-            view_distance = mesh.radius + 1.f;
-            m_projection = glm::ortho(-aspect*view_distance, aspect*view_distance, -view_distance, view_distance,-1000.0f, 1000.0f);
-            break;
-    }
+    view_distance = mesh.radius * 4.f;
+    m_projection = glm::perspective(fov, aspect, zNear, zFar);
+    m_up = glm::vec3(0.0f, 1.0f, 0.0f);
+
+    m_position = glm::vec3(mesh.centre.x, mesh.centre.y, -view_distance);
+    m_forward = mesh.centre;
+
+}
+
+//for orthographic proj
+Camera::Camera(glm::vec3 pos,const Mesh& mesh, float aspect, glm::vec3 up)
+{
+    view_distance = mesh.radius + 1.f;
+    m_projection = glm::ortho(-aspect*view_distance, aspect*view_distance, -view_distance, view_distance,-1000.0f, 1000.0f);
+    m_up = up;
 
     m_position = pos;
     m_forward = mesh.centre;
-    m_up = glm::vec3(0.0f, 1.0f, 0.0f);
+
 }
 
 glm::mat4 Camera::GetViewProjection() const {
-    return m_projection * glm::lookAt(m_position, m_forward, m_up);
+    return m_projection * glm::lookAt(m_position, m_forward, m_up)*glm::vec4(1.0f);
 }
 
 Camera::~Camera()

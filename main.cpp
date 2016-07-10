@@ -34,14 +34,13 @@ int main(int argc, char *argv[])
 
     Display display(DISPLAY_WIDTH, DISPLAY_HEIGHT, "Mesh visualiser");
 
-    Mesh mesh("/home/isa/Desktop/UIwithoutQT/Meshes/teapot.obj");
+    Mesh mesh("/home/isa/Desktop/UIwithoutQT/Meshes/horse.obj");
     Mesh *cubeMesh = createOBB(mesh.radius, mesh.centre);
 
     Shader mainShader("/home/isa/Desktop/UIwithoutQT/Shader/basicShader");
     Shader cubeShader("/home/isa/Desktop/UIwithoutQT/Shader/cubeShader");
 
-    float view_distance = mesh.radius * 4.f;
-    Camera camera(glm::vec3(mesh.centre.x, mesh.centre.y, -view_distance), mesh, 70.0f, ASPECT, 1.0f, 1000.0f, Camera::projectionType::PERSPECTIVE_P);
+    Camera camera(mesh, 70.0f, ASPECT, 1.0f, 1000.0f);
     Transform transform = Transform();
 
     float counter = 0.0f;
@@ -67,34 +66,47 @@ int main(int argc, char *argv[])
             cubeShader.Bind();
             cubeShader.Update(transform, camera);
             cubeMesh->Draw();
+
         }
         //ORTHOGRAPHIC PROJECTION
         else
         {
             Shader mainShader("/home/isa/Desktop/UIwithoutQT/Shader/silhouetteShader");
             glm::vec3 pos;
+            glm::vec3 up;
+            float view_distance = mesh.radius + 1.f;
+
             for (int i = 1; i<=3; i++){
 
                 display.Clear(1.0f, 1.0f, 1.0f, 1.0f);
 
                 switch(i){
                 case 1:
+                {
                     pos = glm::vec3(mesh.centre.x, mesh.centre.y, -view_distance);
+                    up = glm::vec3(0.0f, 1.0f, 0.0f);
                     break;
-                case 2:
-                    pos = glm::vec3(view_distance, mesh.centre.y, mesh.centre.z);
-                    break;
-                case 3:
-                    pos = glm::vec3(mesh.centre.x, ASPECT*view_distance, mesh.centre.z);
-                    break;
-                default:
-                    return -1;
                 }
-                camera = Camera(pos, mesh, 70.0f, ASPECT, 1.0f, 1000.0f, Camera::projectionType::PERSPECTIVE_P);
+                case 2:
+                {
+                    pos = glm::vec3(view_distance, mesh.centre.y, mesh.centre.z);
+                    up = glm::vec3(0.0f, 1.0f, 0.0f);
+                    break;
+                }
+                case 3:
+                {
+                    pos = glm::vec3(mesh.centre.x, view_distance, mesh.centre.z);
+                    up = glm::vec3(0.0f, 0.0f, 1.0f);
+                    break;
+                }
+
+                }
+                camera = Camera(pos, mesh, ASPECT, up);
 
                 mainShader.Bind();
                 mainShader.Update(transform, camera);
                 mesh.Draw();
+
                 saveProjection(img, i);
 
             }
@@ -102,7 +114,7 @@ int main(int argc, char *argv[])
             display.projection = Display::projectionType::PERSPECTIVE_P;
 
             mainShader = Shader("/home/isa/Desktop/UIwithoutQT/Shader/basicShader");
-            camera = Camera(glm::vec3(mesh.centre.x, mesh.centre.y, -view_distance), mesh, 70.0f, ASPECT, 1.0f, 1000.0f, Camera::projectionType::PERSPECTIVE_P);
+            camera = Camera(mesh, 70.0f, ASPECT, 1.0f, 1000.0f);
 
         }
 
