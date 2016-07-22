@@ -29,12 +29,12 @@ void saveProjection(cv::Mat& img, int index);
 
 int main(int argc, char *argv[])
 {
-
+    glm::vec3 OBBcenters[3];
     cv::Mat img(DISPLAY_HEIGHT, DISPLAY_WIDTH, CV_8UC3); //8byte unsigned int 3 channels
 
     Display display(DISPLAY_WIDTH, DISPLAY_HEIGHT, "Mesh visualiser");
 
-    Mesh mesh("/home/isa/Desktop/UIwithoutQT/Meshes/horse.obj");
+    Mesh mesh("/home/isa/Desktop/UIwithoutQT/Meshes/monkey3.obj");
     Mesh *cubeMesh = createOBB(mesh.radius, mesh.centre);
 
     Shader mainShader("/home/isa/Desktop/UIwithoutQT/Shader/basicShader");
@@ -83,18 +83,22 @@ int main(int argc, char *argv[])
                 switch(i){
                 case 1:
                 {
+                    //glm::vec3 = cubeMesh->modelData.positions[6];
+                    //front projection
                     pos = glm::vec3(mesh.centre.x, mesh.centre.y, -view_distance);
                     up = glm::vec3(0.0f, 1.0f, 0.0f);
                     break;
                 }
                 case 2:
                 {
+                    //left projection
                     pos = glm::vec3(view_distance, mesh.centre.y, mesh.centre.z);
                     up = glm::vec3(0.0f, 1.0f, 0.0f);
                     break;
                 }
                 case 3:
                 {
+                    //top projection
                     pos = glm::vec3(mesh.centre.x, view_distance, mesh.centre.z);
                     up = glm::vec3(0.0f, 0.0f, 1.0f);
                     break;
@@ -162,7 +166,7 @@ Mesh* createOBB(float radius, glm::vec3 centre) {
         Vertex(glm::vec3(centre.x + radius, centre.y + radius, centre.z + radius), glm::vec3(0, 0, 1)),
         Vertex(glm::vec3(centre.x + radius, centre.y - radius, centre.z + radius), glm::vec3(0, 0, 1)),
         Vertex(glm::vec3(centre.x - radius, centre.y - radius, centre.z + radius), glm::vec3(0, 0, 1)),
-
+        
         //bottom & top
         Vertex(glm::vec3(centre.x - radius, centre.y - radius, centre.z + radius), glm::vec3(0, -1, 0)),
         Vertex(glm::vec3(centre.x + radius, centre.y - radius, centre.z + radius), glm::vec3(0, -1, 0)),
@@ -186,7 +190,7 @@ Mesh* createOBB(float radius, glm::vec3 centre) {
         Vertex(glm::vec3(centre.x - radius, centre.y - radius, centre.z - radius), glm::vec3(-1, 0, 0)),
 
     };
-
+            
     unsigned int indices[] = { 0, 1, 2,
         0, 2, 3,
 
