@@ -25,7 +25,7 @@ Camera::Camera(glm::vec3 pos,const Mesh& mesh, float aspect, glm::vec3 up)
 }
 
 glm::mat4 Camera::GetViewProjection() const {
-    return m_projection * glm::lookAt(m_position, m_forward, m_up) * glm::mat4(1.0f);
+    return m_projection * glm::lookAt(m_position, m_forward, m_up);
 }
 
 Camera::~Camera()
