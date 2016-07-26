@@ -5,12 +5,12 @@ attribute vec3 normal;
 
 varying vec3 normal0;
 
-uniform mat4 transform;
+uniform mat4 MVP_camera;
 
 void main()
 {
-	gl_Position = transform * vec4(position, 1.0);
+	gl_Position = MVP_camera * vec4(position, 1.0);
 	//lambertian lighting
-	normal0 = (transform * vec4(normal, 0.0)).xyz;
+	normal0 = (MVP_camera * vec4(normal, 0.0)).xyz;
 
 }

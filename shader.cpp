@@ -29,7 +29,9 @@ Shader::Shader(const std::string& fileName)
     glValidateProgram(m_program);
     CheckShaderError(m_program, GL_VALIDATE_STATUS, true, "Invalid shader program");
 
-    m_uniforms[TRANSFORM_U] = glGetUniformLocation(m_program, "transform");
+    m_uniforms[TRANSFORM_U] = glGetUniformLocation(m_program, "MVP_camera");
+
+    m_uniforms[1] = glGetUniformLocation(m_program, "model_OBB");
 
 }
 
@@ -93,9 +95,17 @@ void Shader::Bind() {
     glUseProgram(m_program);
 }
 
-void Shader::Update(const Transform& transform, const Camera& camera) {
-    glm::mat4 model = camera.GetViewProjection() * transform.GetModel();
-    glUniformMatrix4fv(m_uniforms[TRANSFORM_U], 1, GL_FALSE, &model[0][0]);
+void Shader::Update(const Transform& transform_camera, const Camera& camera) {
+    glm::mat4 MVP_camera = camera.GetViewProjection() * transform_camera.GetModel();
+    glUniformMatrix4fv(m_uniforms[TRANSFORM_U], 1, GL_FALSE, &MVP_camera[0][0]);
+}
+
+void Shader::UpdateWOBB(const Transform& transform_camera, const Camera& camera, const Transform& transform_OBB) {
+    glm::mat4 MVP_camera = camera.GetViewProjection() * transform_camera.GetModel();
+    glUniformMatrix4fv(m_uniforms[TRANSFORM_U], 1, GL_FALSE, &MVP_camera[0][0]);
+    glm::mat4 model_OBB = transform_OBB.GetModel();
+    glUniformMatrix4fv(m_uniforms[1], 1, GL_FALSE, &model_OBB[0][0]);
+
 }
 
 static GLuint CreateShader(const std::string& text, GLenum type) {

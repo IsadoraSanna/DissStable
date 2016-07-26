@@ -24,6 +24,13 @@ public:
         return posMat * rotMat * scaleMat;
     }
 
+    void Reset()
+    {
+        m_pos = glm::vec3();
+        m_rot = glm::vec3();
+        m_scale = glm::vec3(1.0f, 1.0f, 1.0f);
+    }
+
     inline glm::vec3& GetPos() { return m_pos; }
     inline glm::vec3& GetRot() { return m_rot; }
     inline glm::vec3& GetScale() { return m_scale; }

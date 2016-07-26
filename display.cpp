@@ -55,7 +55,7 @@ bool Display::isClosed() {
     return m_isClosed;
 }
 
-void Display::Update(Transform &transform)
+void Display::Update(Transform &transform_camera, Transform &transform_OBB)
 {
     SDL_GL_SwapWindow(m_window);
 
@@ -68,14 +68,28 @@ void Display::Update(Transform &transform)
                 std::cout << "ESC" << std::endl;
                 m_isClosed = true;
             }
+            else if(keys[SDL_SCANCODE_LEFT] && keys[SDL_SCANCODE_B])
+                transform_OBB.m_rot += glm::vec3(0.f,-0.1f,0.f);
+            else if(keys[SDL_SCANCODE_UP] && keys[SDL_SCANCODE_B])
+                transform_OBB.m_rot += glm::vec3(0.1f,0.f,0.f);
+            else if(keys[SDL_SCANCODE_RIGHT] && keys[SDL_SCANCODE_B])
+                transform_OBB.m_rot += glm::vec3(0.f,0.1f,0.f);
+            else if(keys[SDL_SCANCODE_DOWN] && keys[SDL_SCANCODE_B])
+                transform_OBB.m_rot += glm::vec3(-0.1f,0.f,0.f);
+
             else if(keys[SDL_SCANCODE_LEFT])
-                transform.m_rot += glm::vec3(0.f,-0.1f,0.f);
+                transform_camera.m_rot += glm::vec3(0.f,-0.1f,0.f);
             else if (keys[SDL_SCANCODE_UP])
-               transform.m_rot += glm::vec3(0.1f,0.f,0.f);
+               transform_camera.m_rot += glm::vec3(0.1f,0.f,0.f);
             else if (keys[SDL_SCANCODE_RIGHT])
-                transform.m_rot += glm::vec3(0.f,0.1f,0.f);
+                transform_camera.m_rot += glm::vec3(0.f,0.1f,0.f);
             else if (keys[SDL_SCANCODE_DOWN])
-                transform.m_rot += glm::vec3(-0.1f,0.f,0.f);
+                transform_camera.m_rot += glm::vec3(-0.1f,0.f,0.f);
+
+            else if (keys[SDL_SCANCODE_R]){
+                transform_camera.Reset();
+                transform_OBB.Reset();
+            }
             else if (keys[SDL_SCANCODE_RETURN])
                 projection = ORTHOGRAPHIC_P;
             break;
@@ -94,8 +108,8 @@ void Display::Update(Transform &transform)
                 std::cout << "trascino bottone premuto" << distanceY << ".. " << std::endl;
                 distanceX = (e.motion.x - firstX);
                 distanceY = (e.motion.y - firstY);
-                transform.m_rot += glm::vec3(0.f,distanceY/100,0.f);
-                //transform.m_rot += glm::vec3(distanceX/100,0.f,0.f);
+                transform_camera.m_rot += glm::vec3(0.f,distanceY/100,0.f);
+                //transform_camera.m_rot += glm::vec3(distanceX/100,0.f,0.f);
             }
             break;
         case SDL_MOUSEBUTTONUP:

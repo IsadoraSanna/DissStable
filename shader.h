@@ -13,8 +13,8 @@ class Shader
 public:
     Shader(const std::string& fileName);
     void Bind();
-    void Update(const Transform& transform, const Camera& camera);
-
+    void Update(const Transform& transform_camera, const Camera& camera);
+    void UpdateWOBB(const Transform& transform_camera, const Camera& camera, const Transform& transform_OBB);
     virtual ~Shader();
 private:
     static const unsigned int NUM_SHADERS = 2;

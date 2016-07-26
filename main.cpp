@@ -34,16 +34,19 @@ int main(int argc, char *argv[])
 
     Display display(DISPLAY_WIDTH, DISPLAY_HEIGHT, "Mesh visualiser");
 
-    Mesh mesh("/home/isa/Desktop/UIwithoutQT/Meshes/monkey3.obj");
+    Mesh mesh("/home/isa/Desktop/UIwithoutQT/Meshes/teapot.obj");
     Mesh *cubeMesh = createOBB(mesh.radius, mesh.centre);
 
     Shader mainShader("/home/isa/Desktop/UIwithoutQT/Shader/basicShader");
     Shader cubeShader("/home/isa/Desktop/UIwithoutQT/Shader/cubeShader");
 
     Camera camera(mesh, 70.0f, ASPECT, 1.0f, 1000.0f);
-    Transform transform = Transform();
+    //transform for the camera
+    Transform transform_camera = Transform();
+    //transform for the OBB
+    Transform transform_OBB = Transform();
 
-    float counter = 0.0f;
+//    float counter = 0.0f;
 
     while (!display.isClosed()) {
 
@@ -52,19 +55,19 @@ int main(int argc, char *argv[])
         {
             display.Clear(0.0f, 0.15f, 0.3f, 1.0f);
 
-            float sinCounter = sinf(counter);
-            float cosCounter = cosf(counter);
+//            float sinCounter = sinf(counter);
+//            float cosCounter = cosf(counter);
 
-            /*transform.GetPos().x = sinCounter;*/
-            //transform.GetRot().y = counter*50;
-            //transform.SetScale(glm::vec3(cosCounter, cosCounter, cosCounter));
+            /*transform_camera.GetPos().x = sinCounter;*/
+            //transform_camera.GetRot().y = counter*50;
+            //transform_camera.SetScale(glm::vec3(cosCounter, cosCounter, cosCounter));
 
             mainShader.Bind();
-            mainShader.Update(transform, camera);
+            mainShader.Update(transform_camera, camera);
             mesh.Draw();
 
             cubeShader.Bind();
-            cubeShader.Update(transform, camera);
+            cubeShader.UpdateWOBB(transform_camera, camera, transform_OBB);
             cubeMesh->Draw();
 
         }
@@ -72,6 +75,7 @@ int main(int argc, char *argv[])
         else
         {
             Shader mainShader("/home/isa/Desktop/UIwithoutQT/Shader/silhouetteShader");
+            glm::vec4 pos_transform;
             glm::vec3 pos;
             glm::vec3 up;
             float view_distance = mesh.radius + 1.f;
@@ -83,24 +87,29 @@ int main(int argc, char *argv[])
                 switch(i){
                 case 1:
                 {
-                    //glm::vec3 = cubeMesh->modelData.positions[6];
                     //front projection
-                    pos = glm::vec3(mesh.centre.x, mesh.centre.y, -view_distance);
+                    pos_transform = transform_camera.GetModel() * transform_OBB.GetModel() * glm::vec4(mesh.centre.x, mesh.centre.y, -view_distance,1);
+                    pos_transform /= pos_transform.w;
+                    pos = glm::vec3(pos_transform.x,pos_transform.y,pos_transform.z);
                     up = glm::vec3(0.0f, 1.0f, 0.0f);
                     break;
                 }
                 case 2:
                 {
                     //left projection
-                    pos = glm::vec3(view_distance, mesh.centre.y, mesh.centre.z);
+                    pos_transform = transform_camera.GetModel() * transform_OBB.GetModel() * glm::vec4(view_distance, mesh.centre.y, mesh.centre.z, 1);
+                    pos_transform /= pos_transform.w;
+                    pos = glm::vec3(pos_transform.x,pos_transform.y,pos_transform.z);
                     up = glm::vec3(0.0f, 1.0f, 0.0f);
                     break;
                 }
                 case 3:
                 {
                     //top projection
-                    pos = glm::vec3(mesh.centre.x, view_distance, mesh.centre.z);
-                    up = glm::vec3(0.0f, 0.0f, 1.0f);
+                    pos_transform = transform_camera.GetModel() * transform_OBB.GetModel() * glm::vec4(mesh.centre.x, view_distance, mesh.centre.z, 1);
+                    pos_transform /= pos_transform.w;
+                    pos = glm::vec3(pos_transform.x,pos_transform.y,pos_transform.z);
+                    up = glm::vec3(0.0f, 1.0f, 0.0f);
                     break;
                 }
 
@@ -108,7 +117,7 @@ int main(int argc, char *argv[])
                 camera = Camera(pos, mesh, ASPECT, up);
 
                 mainShader.Bind();
-                mainShader.Update(transform, camera);
+                mainShader.Update(transform_camera, camera);
                 mesh.Draw();
 
                 saveProjection(img, i);
@@ -122,7 +131,7 @@ int main(int argc, char *argv[])
 
         }
 
-        display.Update(transform);
+        display.Update(transform_camera, transform_OBB);
         //counter += 0.00001;
     }
 

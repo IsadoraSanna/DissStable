@@ -13,7 +13,7 @@ public:
     Display(int width, int height, const std::string& title);
     virtual ~Display();
     void Clear(float r, float g, float b, float a);
-    void Update(Transform &transform);
+    void Update(Transform &transform_camera, Transform &transform_OBB);
     bool isClosed();
     bool projection;
 
