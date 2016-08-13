@@ -15,6 +15,8 @@ public:
     Camera(glm::vec3 pos,const Mesh& mesh, float aspect, glm::vec3 up);
 
     glm::mat4 GetViewProjection() const;
+    glm::mat4 GetProjection() const;
+    glm::mat4 GetView() const;
     void RotateY(float angle);
 
 private:

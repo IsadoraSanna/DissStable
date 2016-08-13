@@ -4,13 +4,17 @@ attribute vec3 position;
 attribute vec3 normal;
 
 varying vec3 normal0;
+varying vec3 FragPos;
 
-uniform mat4 MVP_camera;
+uniform mat4 model_camera;
+uniform mat4 view;
+uniform mat4 projection;
+uniform mat4 model_mesh;
 
 void main()
 {
-	gl_Position = MVP_camera * vec4(position, 1.0);
+	gl_Position = projection * view * model_camera * model_mesh * vec4(position, 1.0);
 	//lambertian lighting
-	normal0 = (MVP_camera * vec4(normal, 0.0)).xyz;
-
+	FragPos = vec3(model_camera * model_mesh * vec4(position, 1.0f));
+	normal0 = (projection * view * model_camera * model_mesh *vec4(normal, 0.0)).xyz;
 }

@@ -23,7 +23,7 @@ static const float ASPECT = (float)DISPLAY_WIDTH/(float)DISPLAY_HEIGHT;
 static const int RESOLUTION = 100;
 static float edgeSize;
 
-Mesh* createOBB(float radius, glm::vec3 centre);
+Mesh* createOBB(float radius, glm::vec3 centrex);
 cv::Mat rotate(cv::Mat img);
 void saveProjection(cv::Mat& img, int index);
 
@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
 
     Display display(DISPLAY_WIDTH, DISPLAY_HEIGHT, "Mesh visualiser");
 
-    Mesh mesh("/home/isa/Desktop/UIwithoutQT/Meshes/teapot.obj");
+    Mesh mesh("/home/isa/Desktop/UIwithoutQT/Meshes/monkey3.obj");
     Mesh *cubeMesh = createOBB(mesh.radius, mesh.centre);
 
     Shader mainShader("/home/isa/Desktop/UIwithoutQT/Shader/basicShader");
@@ -45,6 +45,9 @@ int main(int argc, char *argv[])
     Transform transform_camera = Transform();
     //transform for the OBB
     Transform transform_OBB = Transform();
+    //transform for the Mesh
+    Transform transform_mesh = Transform();
+    transform_mesh.m_pos = (glm::vec3(-mesh.centre.x,-mesh.centre.y,-mesh.centre.z));
 
 //    float counter = 0.0f;
 
@@ -63,21 +66,20 @@ int main(int argc, char *argv[])
             //transform_camera.SetScale(glm::vec3(cosCounter, cosCounter, cosCounter));
 
             mainShader.Bind();
-            mainShader.Update(transform_camera, camera);
+            mainShader.Update(transform_camera, camera, transform_mesh);
             mesh.Draw();
 
-            cubeShader.Bind();
-            cubeShader.UpdateWOBB(transform_camera, camera, transform_OBB);
-            cubeMesh->Draw();
+//            cubeShader.Bind();
+//            cubeShader.UpdateWOBB(transform_camera, camera, transform_OBB);
+//            cubeMesh->Draw();
 
         }
         //ORTHOGRAPHIC PROJECTION
         else
         {
             Shader mainShader("/home/isa/Desktop/UIwithoutQT/Shader/silhouetteShader");
-            glm::vec4 pos_transform;
-            glm::vec3 pos;
-            glm::vec3 up;
+            glm::vec4 pos_transform, up_transform;
+            glm::vec3 pos, up;
             float view_distance = mesh.radius + 1.f;
 
             for (int i = 1; i<=3; i++){
@@ -88,16 +90,18 @@ int main(int argc, char *argv[])
                 case 1:
                 {
                     //front projection
-                    pos_transform = transform_camera.GetModel() * transform_OBB.GetModel() * glm::vec4(mesh.centre.x, mesh.centre.y, -view_distance,1);
-                    pos_transform /= pos_transform.w;
-                    pos = glm::vec3(pos_transform.x,pos_transform.y,pos_transform.z);
-                    up = glm::vec3(0.0f, 1.0f, 0.0f);
+                    pos_transform =  transform_OBB.GetModel() * glm::vec4(cubeMesh->centre.x, cubeMesh->centre.y, -view_distance,1);
+                    //pos_transform /= pos_transform.w;
+                    pos = glm::vec3(pos_transform.x, pos_transform.y, pos_transform.z);
+                    up_transform = transform_OBB.GetModel() * glm::vec4(0.0f, 1.0f, 0.0f, 0.0f);
+                    //up_transform /= up_transform.w;
+                    up = glm::vec3(up_transform.x, up_transform.y, up_transform.z);
                     break;
                 }
                 case 2:
                 {
                     //left projection
-                    pos_transform = transform_camera.GetModel() * transform_OBB.GetModel() * glm::vec4(view_distance, mesh.centre.y, mesh.centre.z, 1);
+                    pos_transform = transform_camera.GetModel() * transform_OBB.GetModel() * glm::vec4(view_distance, cubeMesh->centre.y, cubeMesh->centre.z, 1);
                     pos_transform /= pos_transform.w;
                     pos = glm::vec3(pos_transform.x,pos_transform.y,pos_transform.z);
                     up = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -106,7 +110,7 @@ int main(int argc, char *argv[])
                 case 3:
                 {
                     //top projection
-                    pos_transform = transform_camera.GetModel() * transform_OBB.GetModel() * glm::vec4(mesh.centre.x, view_distance, mesh.centre.z, 1);
+                    pos_transform = transform_camera.GetModel() * transform_OBB.GetModel() * glm::vec4(cubeMesh->centre.x, view_distance, cubeMesh->centre.z, 1);
                     pos_transform /= pos_transform.w;
                     pos = glm::vec3(pos_transform.x,pos_transform.y,pos_transform.z);
                     up = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -117,7 +121,7 @@ int main(int argc, char *argv[])
                 camera = Camera(pos, mesh, ASPECT, up);
 
                 mainShader.Bind();
-                mainShader.Update(transform_camera, camera);
+                mainShader.Update(transform_camera, camera, transform_mesh);
                 mesh.Draw();
 
                 saveProjection(img, i);
@@ -159,22 +163,21 @@ cv::Mat rotate(cv::Mat img)
     return tempImg;
 }
 
-Mesh* createOBB(float radius, glm::vec3 centre) {
-    edgeSize = sqrt(pow(((centre.x - radius)-(centre.x - radius)),2) + pow(((centre.y - radius)-(centre.y + radius)),2) + pow(((centre.z - radius)-(centre.z - radius)),2));
+Mesh* createOBB(float radius, glm::vec3 centrex) {
+    glm::vec3 centre = glm::vec3(0.f,0.0f,0.f);
 
     Vertex vertices[] =
     {
-
         //back & front
-        Vertex(glm::vec3(centre.x - radius, centre.y + radius, centre.z - radius), glm::vec3(0, 0, -1)),
-        Vertex(glm::vec3(centre.x + radius, centre.y + radius, centre.z - radius), glm::vec3(0, 0, -1)),
-        Vertex(glm::vec3(centre.x + radius, centre.y - radius, centre.z - radius), glm::vec3(0, 0, -1)),
-        Vertex(glm::vec3(centre.x - radius, centre.y - radius, centre.z - radius), glm::vec3(0, 0, -1)),
+        Vertex(glm::vec3(centre.x - radius, centre.y + radius, centre.z - radius), glm::vec3(0, 0, 1)),
+        Vertex(glm::vec3(centre.x + radius, centre.y + radius, centre.z - radius), glm::vec3(0, 0, 1)),
+        Vertex(glm::vec3(centre.x + radius, centre.y - radius, centre.z - radius), glm::vec3(0, 0, 1)),
+        Vertex(glm::vec3(centre.x - radius, centre.y - radius, centre.z - radius), glm::vec3(0, 0, 1)),
 
-        Vertex(glm::vec3(centre.x - radius, centre.y + radius, centre.z + radius), glm::vec3(0, 0, 1)),
-        Vertex(glm::vec3(centre.x + radius, centre.y + radius, centre.z + radius), glm::vec3(0, 0, 1)),
-        Vertex(glm::vec3(centre.x + radius, centre.y - radius, centre.z + radius), glm::vec3(0, 0, 1)),
-        Vertex(glm::vec3(centre.x - radius, centre.y - radius, centre.z + radius), glm::vec3(0, 0, 1)),
+        Vertex(glm::vec3(centre.x - radius, centre.y + radius, centre.z + radius), glm::vec3(0, 0, -1)),
+        Vertex(glm::vec3(centre.x + radius, centre.y + radius, centre.z + radius), glm::vec3(0, 0, -1)),
+        Vertex(glm::vec3(centre.x + radius, centre.y - radius, centre.z + radius), glm::vec3(0, 0, -1)),
+        Vertex(glm::vec3(centre.x - radius, centre.y - radius, centre.z + radius), glm::vec3(0, 0, -1)),
         
         //bottom & top
         Vertex(glm::vec3(centre.x - radius, centre.y - radius, centre.z + radius), glm::vec3(0, -1, 0)),
@@ -197,7 +200,6 @@ Mesh* createOBB(float radius, glm::vec3 centre) {
         Vertex(glm::vec3(centre.x - radius, centre.y + radius, centre.z + radius), glm::vec3(-1, 0, 0)),
         Vertex(glm::vec3(centre.x - radius, centre.y - radius, centre.z + radius), glm::vec3(-1, 0, 0)),
         Vertex(glm::vec3(centre.x - radius, centre.y - radius, centre.z - radius), glm::vec3(-1, 0, 0)),
-
     };
             
     unsigned int indices[] = { 0, 1, 2,

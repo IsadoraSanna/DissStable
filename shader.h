@@ -13,15 +13,21 @@ class Shader
 public:
     Shader(const std::string& fileName);
     void Bind();
-    void Update(const Transform& transform_camera, const Camera& camera);
+    void Update( Transform& transform_camera, const Camera& camera, Transform& transform_mesh);
     void UpdateWOBB(const Transform& transform_camera, const Camera& camera, const Transform& transform_OBB);
     virtual ~Shader();
 private:
     static const unsigned int NUM_SHADERS = 2;
+    static const unsigned int NUM_UNIFORMS = 8;
 
     enum {
-        TRANSFORM_U,
-        NUM_UNIFORMS
+        PROJECTION,
+        VIEW,
+        TRANSFORM_C,
+        TRANSFORM_OBB,
+        TRANSFORM_M,
+        VIEW_POS,
+        AMBIENT
     };
 
     GLuint m_program;

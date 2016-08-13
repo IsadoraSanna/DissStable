@@ -29,9 +29,15 @@ Shader::Shader(const std::string& fileName)
     glValidateProgram(m_program);
     CheckShaderError(m_program, GL_VALIDATE_STATUS, true, "Invalid shader program");
 
-    m_uniforms[TRANSFORM_U] = glGetUniformLocation(m_program, "MVP_camera");
+    m_uniforms[PROJECTION] = glGetUniformLocation(m_program, "projection");
+    m_uniforms[VIEW] = glGetUniformLocation(m_program, "view");
+    m_uniforms[TRANSFORM_C] = glGetUniformLocation(m_program, "model_camera");
+    m_uniforms[TRANSFORM_OBB] = glGetUniformLocation(m_program, "model_OBB");
+    m_uniforms[TRANSFORM_M] = glGetUniformLocation(m_program, "model_mesh");
+    m_uniforms[VIEW_POS] = glGetUniformLocation(m_program, "viewPos");
 
-    m_uniforms[1] = glGetUniformLocation(m_program, "model_OBB");
+
+
 
 }
 
@@ -95,16 +101,42 @@ void Shader::Bind() {
     glUseProgram(m_program);
 }
 
-void Shader::Update(const Transform& transform_camera, const Camera& camera) {
-    glm::mat4 MVP_camera = camera.GetViewProjection() * transform_camera.GetModel();
-    glUniformMatrix4fv(m_uniforms[TRANSFORM_U], 1, GL_FALSE, &MVP_camera[0][0]);
+void Shader::Update( Transform& transform_camera, const Camera& camera,  Transform& transform_mesh) {
+    glm::mat4 projection = camera.GetProjection();
+    glUniformMatrix4fv(m_uniforms[PROJECTION], 1, GL_FALSE, &projection[0][0]);
+    glm::mat4 view = camera.GetView();
+    glUniformMatrix4fv(m_uniforms[VIEW], 1, GL_FALSE, &view[0][0]);
+    glm::mat4 model_camera = transform_camera.GetModel();
+    glUniformMatrix4fv(m_uniforms[TRANSFORM_C], 1, GL_FALSE, &model_camera[0][0]);
+
+    glm::mat4 model_mesh = transform_mesh.GetModel();
+    glUniformMatrix4fv(m_uniforms[TRANSFORM_M], 1, GL_FALSE, &model_mesh[0][0]);
+    glm::vec3 viewPos = transform_camera.GetPos();
+    glUniform3f(m_uniforms[VIEW_POS], viewPos.x, viewPos.y, viewPos.z);
+
+    // Set material properties
+    glUniform3f(glGetUniformLocation(m_program, "material.ambient"),   0.8f, 0.79f, 0.78f);
+    glUniform3f(glGetUniformLocation(m_program, "material.diffuse"),   0.284f, 0.282f, 0.278f);
+    glUniform3f(glGetUniformLocation(m_program, "material.specular"),  0.716f, 0.716f, 0.716f); // Specular doesn't have full effect on this object's material
+    glUniform1f(glGetUniformLocation(m_program, "material.shininess"), 0.028f);
+
+    // Set lights properties
+    glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
+    glm::vec3 diffuseColor = lightColor * glm::vec3(0.5f); // Decrease the influence
+    glm::vec3 ambientColor = diffuseColor * glm::vec3(0.3f); // Low influence
+    glUniform3f(glGetUniformLocation(m_program, "light.position"), 1.2f, 1.0f, 2.0f);
+    glUniform3f(glGetUniformLocation(m_program, "light.ambient"),  ambientColor.x, ambientColor.y, ambientColor.z);
+    glUniform3f(glGetUniformLocation(m_program, "light.diffuse"),  diffuseColor.x, diffuseColor.y, diffuseColor.z);
+    glUniform3f(glGetUniformLocation(m_program, "light.specular"), 1.0f, 1.0f, 1.0f);
+
+
 }
 
 void Shader::UpdateWOBB(const Transform& transform_camera, const Camera& camera, const Transform& transform_OBB) {
     glm::mat4 MVP_camera = camera.GetViewProjection() * transform_camera.GetModel();
-    glUniformMatrix4fv(m_uniforms[TRANSFORM_U], 1, GL_FALSE, &MVP_camera[0][0]);
+    glUniformMatrix4fv(m_uniforms[TRANSFORM_C], 1, GL_FALSE, &MVP_camera[0][0]);
     glm::mat4 model_OBB = transform_OBB.GetModel();
-    glUniformMatrix4fv(m_uniforms[1], 1, GL_FALSE, &model_OBB[0][0]);
+    glUniformMatrix4fv(m_uniforms[TRANSFORM_OBB], 1, GL_FALSE, &model_OBB[0][0]);
 
 }
 

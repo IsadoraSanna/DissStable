@@ -31,13 +31,13 @@ public:
         m_scale = glm::vec3(1.0f, 1.0f, 1.0f);
     }
 
-    inline glm::vec3& GetPos() { return m_pos; }
-    inline glm::vec3& GetRot() { return m_rot; }
-    inline glm::vec3& GetScale() { return m_scale; }
+    glm::vec3& GetPos() { return m_pos; }
+    glm::vec3& GetRot() { return m_rot; }
+    glm::vec3& GetScale() { return m_scale; }
 
-    inline void SetPos(glm::vec3& pos) { m_pos = pos; }
-    inline void SetRot(glm::vec3& rot) { m_rot = rot; }
-    inline void SetScale(glm::vec3& scale) { m_scale = scale; }
+    void SetPos(glm::vec3& pos) { m_pos = pos; }
+    void SetRot(glm::vec3& rot) { m_rot = rot; }
+    void SetScale(glm::vec3& scale) { m_scale = scale; }
 
     glm::vec3 m_pos;
     glm::vec3 m_rot;

@@ -7,8 +7,8 @@ Camera::Camera(const Mesh& mesh, float fov, float aspect, float zNear, float zFa
     m_projection = glm::perspective(fov, aspect, zNear, zFar);
     m_up = glm::vec3(0.0f, 1.0f, 0.0f);
 
-    m_position = glm::vec3(mesh.centre.x, mesh.centre.y, -view_distance);
-    m_forward = mesh.centre;
+    m_position = glm::vec3(0.0f, 0.0f, -view_distance);
+    m_forward = glm::vec3(0.0f);
 
 }
 
@@ -26,6 +26,14 @@ Camera::Camera(glm::vec3 pos,const Mesh& mesh, float aspect, glm::vec3 up)
 
 glm::mat4 Camera::GetViewProjection() const {
     return m_projection * glm::lookAt(m_position, m_forward, m_up);
+}
+
+
+glm::mat4 Camera::GetProjection() const{
+    return m_projection;
+}
+glm::mat4 Camera::GetView() const{
+    return glm::lookAt(m_position, m_forward, m_up);
 }
 
 Camera::~Camera()
