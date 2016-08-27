@@ -180,6 +180,8 @@ vector<int> SimilarityEvaluator::FindTop(vector<tuple<int, float>> scores){
     int vecIndex = 0;
     vector<int> best;
 
+    std::cout << "-------------Results-------------" << std::endl;
+
     for(int j = 0; j < N_BEST; j++)
     {
         for (unsigned int i = 0 ; i < scores.size(); i++){
@@ -190,7 +192,7 @@ vector<int> SimilarityEvaluator::FindTop(vector<tuple<int, float>> scores){
             }
         }
         scores.erase(scores.begin()+vecIndex);
-        std::cout << "Best - " << indexMin << " - " << min << std::endl;
+        std::cout << "Best #" << j+1 << " - index " <<indexMin << " - difference " << min << ". Material: " << dbElements.at(indexMin).name << std::endl;
         best.push_back(indexMin);
 
         min = 1;

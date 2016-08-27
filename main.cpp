@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
 
     Display display(DISPLAY_WIDTH, DISPLAY_HEIGHT, "Mesh visualiser");
 
-    Mesh mesh("/home/isa/Desktop/UIwithoutQT/Meshes/couch.obj");
+    Mesh mesh("/home/isa/Desktop/UIwithoutQT/Meshes/table.obj");
     Mesh *cubeMesh = createOBB(mesh.radius, mesh.centre);
 
     Shader mainShader("/home/isa/Desktop/UIwithoutQT/Shader/basicShader");
@@ -73,13 +73,16 @@ int main(int argc, char *argv[])
             display.Clear(0.0f, 0.15f, 0.3f, 1.0f);
 
             mainShader.Bind();
-            if(display.materialKey == -1)
-                mainShader.Update(transform_camera, camera, transform_mesh, basic_material);
-            else
+            if(display.materialKey != -1 && !bestMaterials.empty())
                 mainShader.Update(transform_camera, camera, transform_mesh, materials.at(display.materialKey));
+
+            else if (display.materialKey == -1 && !bestMaterials.empty())
+                mainShader.Update(transform_camera, camera, transform_mesh, materials.at(0));
+            else
+                mainShader.Update(transform_camera, camera, transform_mesh, basic_material);
             mesh.Draw();
 
-            if(display.materialKey == -1){
+            if(display.materialKey == -1 && bestMaterials.empty()){
                 cubeShader.Bind();
                 cubeShader.UpdateWOBB(transform_camera, camera, transform_OBB);
                 cubeMesh->Draw();
@@ -143,6 +146,7 @@ int main(int argc, char *argv[])
             }
 
             //start similarity check
+            bestMaterials.clear();
             evaluator.LoadSilhouettesContour();
             //bestMaterials = evaluator.CompareFourier();
             bestMaterials = evaluator.CompareShapeContext();
@@ -248,6 +252,4 @@ void extractMaterials(const DB_elements& dbElements, vector<Material> &materials
     materials.clear();
     for(unsigned int i = 0; i < bestMaterials.size(); i++)
         materials.push_back(dbElements.at(bestMaterials.at(i)).material);
-
-    bestMaterials.clear();
 }
