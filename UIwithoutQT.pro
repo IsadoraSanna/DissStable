@@ -14,7 +14,9 @@ SOURCES += main.cpp \
     mesh.cpp \
     camera.cpp \
     shader.cpp \
-    display.cpp
+    display.cpp \
+    db_elements.cpp \
+    similarityevaluator.cpp
 
 HEADERS += \
     obj_loader.h \
@@ -22,7 +24,9 @@ HEADERS += \
     transform.h \
     camera.h \
     shader.h \
-    display.h
+    display.h \
+    db_elements.h \
+    similarityevaluator.h
 
 INCLUDEPATH +=  /usr/include/GL
 LIBS += -L/usr/lib/i386-linux-gnu -lGLEW

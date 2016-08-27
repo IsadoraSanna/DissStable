@@ -15,6 +15,8 @@
 #include "shader.h"
 #include "camera.h"
 #include "transform.h"
+#include "db_elements.h"
+#include "similarityevaluator.h"
 
 
 static const int DISPLAY_WIDTH = 800;
@@ -23,18 +25,25 @@ static const float ASPECT = (float)DISPLAY_WIDTH/(float)DISPLAY_HEIGHT;
 static const int RESOLUTION = 100;
 static float edgeSize;
 
+const int CANDIDATE_POINTS = 64;
+
 Mesh* createOBB(float radius, glm::vec3 centrex);
 cv::Mat rotate(cv::Mat img);
 void saveProjection(cv::Mat& img, int index);
 
 int main(int argc, char *argv[])
 {
-    glm::vec3 OBBcenters[3];
+    //Prepare the DB
+    DB_elements dbElements = DB_elements("/home/isa/Desktop/UIwithoutQT/DB/db.txt", CANDIDATE_POINTS);
+    SimilarityEvaluator evaluator = SimilarityEvaluator(dbElements, CANDIDATE_POINTS);
+    evaluator.getDBFourierDescriptors();
+
+    //Init screen, mesh and shaders
     cv::Mat img(DISPLAY_HEIGHT, DISPLAY_WIDTH, CV_8UC3); //8byte unsigned int 3 channels
 
     Display display(DISPLAY_WIDTH, DISPLAY_HEIGHT, "Mesh visualiser");
 
-    Mesh mesh("/home/isa/Desktop/UIwithoutQT/Meshes/monkey3.obj");
+    Mesh mesh("/home/isa/Desktop/UIwithoutQT/Meshes/pillow.obj");
     Mesh *cubeMesh = createOBB(mesh.radius, mesh.centre);
 
     Shader mainShader("/home/isa/Desktop/UIwithoutQT/Shader/basicShader");
@@ -49,8 +58,6 @@ int main(int argc, char *argv[])
     Transform transform_mesh = Transform();
     transform_mesh.m_pos = (glm::vec3(-mesh.centre.x,-mesh.centre.y,-mesh.centre.z));
 
-//    float counter = 0.0f;
-
     while (!display.isClosed()) {
 
         //PERSPECTVE PROJECTION
@@ -58,22 +65,16 @@ int main(int argc, char *argv[])
         {
             display.Clear(0.0f, 0.15f, 0.3f, 1.0f);
 
-//            float sinCounter = sinf(counter);
-//            float cosCounter = cosf(counter);
-
-            /*transform_camera.GetPos().x = sinCounter;*/
-            //transform_camera.GetRot().y = counter*50;
-            //transform_camera.SetScale(glm::vec3(cosCounter, cosCounter, cosCounter));
-
             mainShader.Bind();
             mainShader.Update(transform_camera, camera, transform_mesh);
             mesh.Draw();
 
-//            cubeShader.Bind();
-//            cubeShader.UpdateWOBB(transform_camera, camera, transform_OBB);
-//            cubeMesh->Draw();
+            cubeShader.Bind();
+            cubeShader.UpdateWOBB(transform_camera, camera, transform_OBB);
+            cubeMesh->Draw();
 
         }
+
         //ORTHOGRAPHIC PROJECTION
         else
         {
@@ -81,6 +82,7 @@ int main(int argc, char *argv[])
             glm::vec4 pos_transform, up_transform;
             glm::vec3 pos, up;
             float view_distance = mesh.radius + 1.f;
+
 
             for (int i = 1; i<=3; i++){
 
@@ -90,10 +92,10 @@ int main(int argc, char *argv[])
                 case 1:
                 {
                     //front projection
-                    pos_transform =  transform_OBB.GetModel() * glm::vec4(cubeMesh->centre.x, cubeMesh->centre.y, -view_distance,1);
+                    pos_transform = transform_mesh.GetModel()* transform_OBB.GetModel() * glm::vec4(cubeMesh->centre.x, cubeMesh->centre.y, -view_distance,1);
                     //pos_transform /= pos_transform.w;
                     pos = glm::vec3(pos_transform.x, pos_transform.y, pos_transform.z);
-                    up_transform = transform_OBB.GetModel() * glm::vec4(0.0f, 1.0f, 0.0f, 0.0f);
+                    up_transform = transform_mesh.GetModel()*transform_OBB.GetModel() * glm::vec4(0.0f, 1.0f, 0.0f, 0.0f);
                     //up_transform /= up_transform.w;
                     up = glm::vec3(up_transform.x, up_transform.y, up_transform.z);
                     break;
@@ -128,6 +130,12 @@ int main(int argc, char *argv[])
 
             }
 
+            //start similarity check
+
+            evaluator.LoadSilhouettesContour();
+            evaluator.compareFourier();
+
+            //reset view
             display.projection = Display::projectionType::PERSPECTIVE_P;
 
             mainShader = Shader("/home/isa/Desktop/UIwithoutQT/Shader/basicShader");
@@ -136,7 +144,6 @@ int main(int argc, char *argv[])
         }
 
         display.Update(transform_camera, transform_OBB);
-        //counter += 0.00001;
     }
 
     return 0;
@@ -222,3 +229,5 @@ Mesh* createOBB(float radius, glm::vec3 centrex) {
     };
     return new Mesh(vertices, sizeof(vertices) / sizeof(vertices[0]), indices, sizeof(indices) / sizeof(indices[0]));
 }
+
+
