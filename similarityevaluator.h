@@ -10,9 +10,10 @@
 #include <opencv2/imgproc/imgproc.hpp>
 
 #include "db_elements.h"
+#include "cmshapecontext.h"
 
 
-typedef vector<Point> Silhouette;
+typedef vector<Point2d> Silhouette;
 
 struct SilhouetteData{
     Silhouette silhouette;
@@ -32,15 +33,18 @@ public:
 
     //Projections
     void LoadSilhouettesContour();
-    vector<Point> getContour(cv::Mat gray);
+    vector<Point2d> GetContour(cv::Mat gray);
 
-    void getDBFourierDescriptors();
-    vector<complex<float>> getFourierDescriptors(Silhouette contour, Mat silImage);
-    float computeFDDifference(vector<complex<float>> fd1, vector<complex<float>> fd2);
-    void compareFourier();
+    //Fourier
+    vector<complex<float>> GetFourierDescriptors(Silhouette contour, Mat silImage);
+    void GetDBFourierDescriptors();
+    float ComputeFDDifference(vector<complex<float>> fd1, vector<complex<float>> fd2);
+    vector<int> CompareFourier();
 
+    //Shape Context
+    vector<int> CompareShapeContext();
 
-    void findTop(vector<tuple<int, float>> scores);
+    vector<int> FindTop(vector<tuple<int, float>> scores);
 private:
     vector<SilhouetteData> silhouettes;
 

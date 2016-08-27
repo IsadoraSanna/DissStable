@@ -101,7 +101,8 @@ void Shader::Bind() {
     glUseProgram(m_program);
 }
 
-void Shader::Update( Transform& transform_camera, const Camera& camera,  Transform& transform_mesh) {
+void Shader::Update( Transform& transform_camera, const Camera& camera,  Transform& transform_mesh, Material material) {
+
     glm::mat4 projection = camera.GetProjection();
     glUniformMatrix4fv(m_uniforms[PROJECTION], 1, GL_FALSE, &projection[0][0]);
     glm::mat4 view = camera.GetView();
@@ -114,16 +115,26 @@ void Shader::Update( Transform& transform_camera, const Camera& camera,  Transfo
     glm::vec3 viewPos = transform_camera.GetPos();
     glUniform3f(m_uniforms[VIEW_POS], viewPos.x, viewPos.y, viewPos.z);
 
-    // Set material properties
-    glUniform3f(glGetUniformLocation(m_program, "material.ambient"),   0.85f, 0.85f, 0.81f);
-    glUniform3f(glGetUniformLocation(m_program, "material.diffuse"),   0.387f, 0.387f, 0.372f);
-    glUniform3f(glGetUniformLocation(m_program, "material.specular"),  0.613f, 0.613f, 0.613f);
-    glUniform1f(glGetUniformLocation(m_program, "material.shininess"), 0.101f);
+    if(material.shininess == -1.0f){
+         // Set material properties
+        glUniform3f(glGetUniformLocation(m_program, "material.ambient"),   1.0f, 1.0f, 1.0f);
+        glUniform3f(glGetUniformLocation(m_program, "material.diffuse"),   1.0f, 1.0f, 1.0f);
+        glUniform3f(glGetUniformLocation(m_program, "material.specular"),  0.0f, 0.0f, 0.0f);
+        glUniform1f(glGetUniformLocation(m_program, "material.shininess"), 255.0f);
+    }else{
+        glUniform3f(glGetUniformLocation(m_program, "material.ambient"),   material.ambient.r, material.ambient.g, material.ambient.b);
+        glUniform3f(glGetUniformLocation(m_program, "material.diffuse"),   material.diffuse.r, material.diffuse.g, material.diffuse.b);
+        glUniform3f(glGetUniformLocation(m_program, "material.specular"),  material.specular.r, material.specular.g, material.specular.b);
+        glUniform1f(glGetUniformLocation(m_program, "material.shininess"), material.shininess*1000);
+    }
+
 
     // Set lights properties
     glm::vec3 lightColor = glm::vec3(0.8f, 0.8f, 0.8f);
-    glm::vec3 diffuseColor = lightColor * glm::vec3(1.0f); // Decrease the influence
-    glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f); // Low influence
+    //glm::vec3 diffuseColor = lightColor * glm::vec3(1.0f); // Decrease the influence
+    //glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f); // Low influence
+    glm::vec3 diffuseColor = lightColor; // Decrease the influence
+    glm::vec3 ambientColor = diffuseColor; // Low influence
     glUniform3f(glGetUniformLocation(m_program, "light.position"), 1.2f, 1.0f, 2.0f);
     glUniform3f(glGetUniformLocation(m_program, "light.ambient"),  ambientColor.x, ambientColor.y, ambientColor.z);
     glUniform3f(glGetUniformLocation(m_program, "light.diffuse"),  diffuseColor.x, diffuseColor.y, diffuseColor.z);

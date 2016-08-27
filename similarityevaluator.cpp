@@ -29,7 +29,7 @@ void SimilarityEvaluator::LoadSilhouettesContour(){
            bitwise_not (gray, gray);
 
 
-           temp_silhouette.silhouette = getContour(gray);
+           temp_silhouette.silhouette = GetContour(gray);
            temp_silhouette.silIMG = gray;
            silhouettes.push_back(temp_silhouette);
 
@@ -45,10 +45,10 @@ void SimilarityEvaluator::LoadSilhouettesContour(){
 }
 
 
-vector<Point> SimilarityEvaluator::getContour(cv::Mat gray){
+vector<Point2d> SimilarityEvaluator::GetContour(cv::Mat gray){
 
     vector<vector<Point>> contours;
-    vector<Point> filt_contours;
+    vector<Point2d> filt_contours;
 
     findContours(gray, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
 
@@ -61,32 +61,33 @@ vector<Point> SimilarityEvaluator::getContour(cv::Mat gray){
     ///shape size normalization
     int step = (int)(ceil(contours[0].size()/candidate_points));
     for (unsigned int i = 0, j = 0; i < contours[biggest].size() && j < candidate_points; i += step, j++){
-        filt_contours.push_back(contours[biggest][i]);
+        //filt_contours.push_back(contours[biggest][i]);
+        filt_contours.push_back(Point2d(contours[biggest][i].x, contours[biggest][i].y));
     }
 
     return filt_contours;
 }
 
 //******************************Fourier Descriptors****************************
-void SimilarityEvaluator::compareFourier(){
+vector<int> SimilarityEvaluator::CompareFourier(){
     float difference = 0.0f;
     vector<tuple<int, float>> scores;
     std::cout << "-------------FOURIER DESCRIPTORS-------------" << std::endl;
     for(int i = 0; i<N_SILHOUETTES; i++){
-           vector<complex<float>> silFD = getFourierDescriptors(silhouettes.at(i).silhouette, silhouettes.at(i).silIMG);
+           vector<complex<float>> silFD = GetFourierDescriptors(silhouettes.at(i).silhouette, silhouettes.at(i).silIMG);
            //confronta con gli fd di tutti i db elements
            for (int j = 0; j < DB_SIZE; j++){
-               difference = computeFDDifference(silFD, dbElements.at(j).fd);
+               difference = ComputeFDDifference(silFD, dbElements.at(j).fd);
                std::cout << "Silhouette " << i+1 << " - DB element " << j << " - Difference = " << difference << std::endl;
                //scores.push_back(difference);
                scores.push_back(make_tuple(j,difference));
            }
-        std::cout << "--------" << std::endl;        
+        std::cout << "--------" << std::endl;
     }
-    findTop(scores);
+    return FindTop(scores);
 }
 
-vector<complex<float>> SimilarityEvaluator::getFourierDescriptors(Silhouette contour, Mat silImage){
+vector<complex<float>> SimilarityEvaluator::GetFourierDescriptors(Silhouette contour, Mat silImage){
     int n_pixels_contour = contour.size();
 
     ///find the centroid
@@ -133,14 +134,14 @@ vector<complex<float>> SimilarityEvaluator::getFourierDescriptors(Silhouette con
     return fd;
 }
 
-void SimilarityEvaluator::getDBFourierDescriptors(){
+void SimilarityEvaluator::GetDBFourierDescriptors(){
 
     for(int i = 0; i < DB_SIZE; i++){
-        dbElements.at(i).fd = getFourierDescriptors(dbElements.at(i).contour, dbElements.at(i).img);
+        dbElements.at(i).fd = GetFourierDescriptors(dbElements.at(i).contour, dbElements.at(i).img);
     }
 }
 
-float SimilarityEvaluator::computeFDDifference(vector<complex<float>> fd1, vector<complex<float>> fd2){
+float SimilarityEvaluator::ComputeFDDifference(vector<complex<float>> fd1, vector<complex<float>> fd2){
     float temp_diff = 0.0f;
 
     if (fd1.size() != fd2.size())
@@ -152,11 +153,32 @@ float SimilarityEvaluator::computeFDDifference(vector<complex<float>> fd1, vecto
     return sqrt(temp_diff);
 }
 
+
+//******************************Shape Context****************************
+vector<int> SimilarityEvaluator::CompareShapeContext(){
+    float difference = 0.0f;
+    CmShapeContext shapeContext;
+    vector<tuple<int, float>> scores;
+    std::cout << "---------SHAPE CONTEXT DESCRIPTORS---------" << std::endl;
+    for(int i = 0; i<N_SILHOUETTES; i++){
+           //confronta con gli fd di tutti i db elements
+           for (int j = 0; j < DB_SIZE; j++){
+               //difference = shapeContext.matchCost(silFD, dbElements.at(j).fd);
+               difference = shapeContext.matchCost(silhouettes.at(i).silhouette, dbElements.at(j).contour);
+               std::cout << "Silhouette " << i+1 << " - DB element " << j << " - Difference = " << difference << std::endl;
+               scores.push_back(make_tuple(j,difference));
+           }
+        std::cout << "--------" << std::endl;
+    }
+    return FindTop(scores);
+}
+
 //******************************Results Management****************************
-void SimilarityEvaluator::findTop(vector<tuple<int, float>> scores){
+vector<int> SimilarityEvaluator::FindTop(vector<tuple<int, float>> scores){
     float min = 1;
     int indexMin = -1;
     int vecIndex = 0;
+    vector<int> best;
 
     for(int j = 0; j < N_BEST; j++)
     {
@@ -169,8 +191,11 @@ void SimilarityEvaluator::findTop(vector<tuple<int, float>> scores){
         }
         scores.erase(scores.begin()+vecIndex);
         std::cout << "Best - " << indexMin << " - " << min << std::endl;
+        best.push_back(indexMin);
 
         min = 1;
         indexMin = -1;
     }
+
+    return best;
 }

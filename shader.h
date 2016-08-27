@@ -7,13 +7,14 @@
 
 #include "camera.h"
 #include "transform.h"
+#include "material.h"
 
 class Shader
 {
 public:
     Shader(const std::string& fileName);
     void Bind();
-    void Update( Transform& transform_camera, const Camera& camera, Transform& transform_mesh);
+    void Update( Transform& transform_camera, const Camera& camera, Transform& transform_mesh, Material material);
     void UpdateWOBB(const Transform& transform_camera, const Camera& camera, const Transform& transform_OBB);
     virtual ~Shader();
 private:

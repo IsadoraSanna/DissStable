@@ -16,6 +16,7 @@ public:
     void Update(Transform &transform_camera, Transform &transform_OBB);
     bool isClosed();
     bool projection;
+    int materialKey;
 
 
     enum projectionType{

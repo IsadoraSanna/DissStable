@@ -43,6 +43,7 @@ Display::Display(int width, int height, const std::string& title) {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     projection = PERSPECTIVE_P;
+    materialKey = -1;
 }
 
 Display::~Display() {
@@ -89,7 +90,14 @@ void Display::Update(Transform &transform_camera, Transform &transform_OBB)
             else if (keys[SDL_SCANCODE_R]){
                 transform_camera.Reset();
                 transform_OBB.Reset();
+                materialKey = -1;
             }
+            else if (keys[SDL_SCANCODE_1])
+                materialKey = 0;
+            else if (keys[SDL_SCANCODE_2])
+                materialKey = 1;
+            else if (keys[SDL_SCANCODE_3])
+                materialKey = 2;
             else if (keys[SDL_SCANCODE_RETURN])
                 projection = ORTHOGRAPHIC_P;
             break;

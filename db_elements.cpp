@@ -103,10 +103,10 @@ void DB_elements::loadContours(){
     }
 }
 
-vector<Point> DB_elements::getContour(cv::Mat imageSRC, int index){
+vector<Point2d> DB_elements::getContour(cv::Mat imageSRC, int index){
 
     vector<vector<Point>> contours;
-    vector<Point> filt_contours;
+    vector<Point2d> filt_contours;
     vector<Vec4i> hierarchy;
     Mat silhouette;
     vector<Mat> channels;
@@ -132,7 +132,8 @@ vector<Point> DB_elements::getContour(cv::Mat imageSRC, int index){
     ///shape size normalization
     int step = (int)(ceil(contours[0].size()/candidate_points));
     for (unsigned int i = 0, j = 0; i < contours[biggest].size() && j < candidate_points; i += step, j++){
-        filt_contours.push_back(contours[biggest][i]);
+        //filt_contours.push_back(contours[biggest][i]);
+        filt_contours.push_back(Point2d(contours[biggest][i].x, contours[biggest][i].y));
     }
 
     return filt_contours;

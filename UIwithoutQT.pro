@@ -16,7 +16,8 @@ SOURCES += main.cpp \
     shader.cpp \
     display.cpp \
     db_elements.cpp \
-    similarityevaluator.cpp
+    similarityevaluator.cpp \
+    cmshapecontext.cpp
 
 HEADERS += \
     obj_loader.h \
@@ -26,7 +27,9 @@ HEADERS += \
     shader.h \
     display.h \
     db_elements.h \
-    similarityevaluator.h
+    similarityevaluator.h \
+    cmshapecontext.h \
+    material.h
 
 INCLUDEPATH +=  /usr/include/GL
 LIBS += -L/usr/lib/i386-linux-gnu -lGLEW

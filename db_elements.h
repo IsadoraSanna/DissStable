@@ -5,28 +5,15 @@
 #include <opencv/cv.h>
 #include <glm/glm.hpp>
 
+#include "material.h"
+
 using namespace cv;
 using namespace std;
-
-struct Colour
-{
-   float r;
-   float g;
-   float b;
-};
-
-struct Material
-{
-    Colour ambient;
-    Colour diffuse;
-    Colour specular;
-    float shininess;
-};
 
 struct Element
 {
     string name;
-    vector<Point> contour;
+    vector<Point2d> contour;
     Material material;
     vector<complex<float>> fd;
     Mat img;
@@ -42,7 +29,7 @@ public:
 
 private:
     void loadContours();
-    vector<Point> getContour(cv::Mat imageSRC, int index);
+    vector<Point2d> getContour(cv::Mat imageSRC, int index);
 };
 
 #endif // DB_ELEMENTS_H

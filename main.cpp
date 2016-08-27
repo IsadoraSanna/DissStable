@@ -30,20 +30,27 @@ const int CANDIDATE_POINTS = 64;
 Mesh* createOBB(float radius, glm::vec3 centrex);
 cv::Mat rotate(cv::Mat img);
 void saveProjection(cv::Mat& img, int index);
+void extractMaterials(const DB_elements& dbElements, vector<Material>& materials, vector<int>& bestMaterials);
 
 int main(int argc, char *argv[])
 {
     //Prepare the DB
     DB_elements dbElements = DB_elements("/home/isa/Desktop/UIwithoutQT/DB/db.txt", CANDIDATE_POINTS);
     SimilarityEvaluator evaluator = SimilarityEvaluator(dbElements, CANDIDATE_POINTS);
-    evaluator.getDBFourierDescriptors();
+    //da mettere dentro l'evaluator:
+    evaluator.GetDBFourierDescriptors();
+
+    vector<Material> materials;
+    Material basic_material;
+    basic_material.shininess = -1.0f;
+    vector<int> bestMaterials;
 
     //Init screen, mesh and shaders
     cv::Mat img(DISPLAY_HEIGHT, DISPLAY_WIDTH, CV_8UC3); //8byte unsigned int 3 channels
 
     Display display(DISPLAY_WIDTH, DISPLAY_HEIGHT, "Mesh visualiser");
 
-    Mesh mesh("/home/isa/Desktop/UIwithoutQT/Meshes/pillow.obj");
+    Mesh mesh("/home/isa/Desktop/UIwithoutQT/Meshes/couch.obj");
     Mesh *cubeMesh = createOBB(mesh.radius, mesh.centre);
 
     Shader mainShader("/home/isa/Desktop/UIwithoutQT/Shader/basicShader");
@@ -66,12 +73,17 @@ int main(int argc, char *argv[])
             display.Clear(0.0f, 0.15f, 0.3f, 1.0f);
 
             mainShader.Bind();
-            mainShader.Update(transform_camera, camera, transform_mesh);
+            if(display.materialKey == -1)
+                mainShader.Update(transform_camera, camera, transform_mesh, basic_material);
+            else
+                mainShader.Update(transform_camera, camera, transform_mesh, materials.at(display.materialKey));
             mesh.Draw();
 
-            cubeShader.Bind();
-            cubeShader.UpdateWOBB(transform_camera, camera, transform_OBB);
-            cubeMesh->Draw();
+            if(display.materialKey == -1){
+                cubeShader.Bind();
+                cubeShader.UpdateWOBB(transform_camera, camera, transform_OBB);
+                cubeMesh->Draw();
+            }
 
         }
 
@@ -123,7 +135,7 @@ int main(int argc, char *argv[])
                 camera = Camera(pos, mesh, ASPECT, up);
 
                 mainShader.Bind();
-                mainShader.Update(transform_camera, camera, transform_mesh);
+                mainShader.Update(transform_camera, camera, transform_mesh,basic_material);
                 mesh.Draw();
 
                 saveProjection(img, i);
@@ -131,9 +143,10 @@ int main(int argc, char *argv[])
             }
 
             //start similarity check
-
             evaluator.LoadSilhouettesContour();
-            evaluator.compareFourier();
+            //bestMaterials = evaluator.CompareFourier();
+            bestMaterials = evaluator.CompareShapeContext();
+            extractMaterials(dbElements, materials, bestMaterials);
 
             //reset view
             display.projection = Display::projectionType::PERSPECTIVE_P;
@@ -231,3 +244,10 @@ Mesh* createOBB(float radius, glm::vec3 centrex) {
 }
 
 
+void extractMaterials(const DB_elements& dbElements, vector<Material> &materials, vector<int>& bestMaterials){
+    materials.clear();
+    for(unsigned int i = 0; i < bestMaterials.size(); i++)
+        materials.push_back(dbElements.at(bestMaterials.at(i)).material);
+
+    bestMaterials.clear();
+}
