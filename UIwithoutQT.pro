@@ -39,3 +39,4 @@ LIBS += -L/usr/local/lib -lSDL2
 
 INCLUDEPATH +=  /usr/local/include/opencv
 LIBS += -L/usr/local/lib -lopencv_core -lopencv_highgui -lopencv_imgcodecs -lopencv_imgproc -lopencv_highgui
+

@@ -9,9 +9,9 @@
 
 
 
-glm::vec3 ParseOBJVec3(const std::string& line);
+glm::vec3 ParseOBJVec3(const string& line);
 static inline unsigned int FindNextChar(unsigned int start, const char* str, unsigned int length, char token);
-static inline float ParseOBJFloatValue(const std::string& token, unsigned int start, unsigned int end);
+static inline float ParseOBJFloatValue(const string& token, unsigned int start, unsigned int end);
 Colour colourParser(string hexValue);
 int candidate_points;
 
@@ -20,9 +20,8 @@ DB_elements::DB_elements(){}
 DB_elements::DB_elements(const string& fileName, const int CANDIDATE_POINTS)
 {
     ifstream file;
-    string line, tmp;
+    string line;
     Element temp_element;
-    int temp_colour;
     glm::vec3 temp_vec3;
 
     candidate_points = CANDIDATE_POINTS;
@@ -30,13 +29,13 @@ DB_elements::DB_elements(const string& fileName, const int CANDIDATE_POINTS)
     file.open(fileName.c_str());
      if (file.is_open())
      {
-         if(file.peek() == std::ifstream::traits_type::eof()){
+         if(file.peek() == ifstream::traits_type::eof()){
             std::cout << "Error - DB file is empty" << std::endl;
          }
 
          while (file.good())
          {
-             std::getline(file, line);
+             getline(file, line);
 
              unsigned int lineLength = line.length();
 
@@ -77,14 +76,14 @@ DB_elements::DB_elements(const string& fileName, const int CANDIDATE_POINTS)
      }
      else
      {
-         std::cerr << "Unable to load DB file: " << fileName << std::endl;
+         std::cerr << "Unable to load DB configuration file: " << fileName << std::endl;
      }
 
-     loadContours();
+     LoadContours();
 
 }
 
-void DB_elements::loadContours(){
+void DB_elements::LoadContours(){
     string file_name;
     Mat imageSRC;
 
@@ -95,15 +94,15 @@ void DB_elements::loadContours(){
 
         if (!imageSRC.data)
         {
-            std::cerr << "Glew failed to initialize!" << std::endl;
+            std::cerr << "Cannot find DB image" << std::endl;
         }
 
-        this->at(n).contour = getContour(imageSRC, n);
+        this->at(n).contour = GetContour(imageSRC, n);
 
     }
 }
 
-vector<Point2d> DB_elements::getContour(cv::Mat imageSRC, int index){
+vector<Point2d> DB_elements::GetContour(Mat imageSRC, int index){
 
     vector<vector<Point>> contours;
     vector<Point2d> filt_contours;
@@ -132,7 +131,6 @@ vector<Point2d> DB_elements::getContour(cv::Mat imageSRC, int index){
     ///shape size normalization
     int step = (int)(ceil(contours[0].size()/candidate_points));
     for (unsigned int i = 0, j = 0; i < contours[biggest].size() && j < candidate_points; i += step, j++){
-        //filt_contours.push_back(contours[biggest][i]);
         filt_contours.push_back(Point2d(contours[biggest][i].x, contours[biggest][i].y));
     }
 
@@ -193,9 +191,7 @@ Colour colourParser(string hexValue)
   Colour rgbColour;
 
   rgbColour.r = (float)(stoul(hexValue.substr(0,2),nullptr,16))/255;
-
   rgbColour.g = (float)(stoul(hexValue.substr(2,2),nullptr,16))/255;
-
   rgbColour.b = (float)(stoul(hexValue.substr(4,2),nullptr,16))/255;
 
   return rgbColour;

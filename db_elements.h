@@ -28,8 +28,10 @@ public:
     DB_elements();
 
 private:
-    void loadContours();
-    vector<Point2d> getContour(cv::Mat imageSRC, int index);
+    void LoadContours();
+    vector<Point2d> GetContour(cv::Mat imageSRC, int index);
 };
 
 #endif // DB_ELEMENTS_H
+
+

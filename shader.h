@@ -27,8 +27,7 @@ private:
         TRANSFORM_C,
         TRANSFORM_OBB,
         TRANSFORM_M,
-        VIEW_POS,
-        AMBIENT
+        VIEW_POS
     };
 
     GLuint m_program;

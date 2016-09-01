@@ -34,12 +34,11 @@ public:
     virtual ~Mesh();
     void Draw();
 private:
-
+    static const int NUM_BUFFERS = 3;
     enum {
         POSITION_VB,
         NORMAL_VB,
-        INDEX_VB,
-        NUM_BUFFERS
+        INDEX_VB
     };
 
     void InitMesh(const IndexedModel& model);
@@ -47,7 +46,7 @@ private:
     GLuint m_vertexArrayObject;
     GLuint m_vertexArrayBuffers[NUM_BUFFERS];
 
-    //how many verteces we want to draw (we need to keep track of how big it is)
+    //how many verteces we want to draw (we need to keep track how big it is)
     unsigned int m_drawCount;
 };
 

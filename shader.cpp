@@ -11,7 +11,7 @@ static GLuint CreateShader(const std::string& text, GLenum type);
 
 Shader::Shader(const std::string& fileName)
 {
-    //we want to create a new shader program
+    //create a new shader program
     m_program = glCreateProgram();
     m_shaders[0] = CreateShader(LoadShader(fileName + ".vs"), GL_VERTEX_SHADER);
     m_shaders[1] = CreateShader(LoadShader(fileName + ".fs"), GL_FRAGMENT_SHADER);
@@ -20,6 +20,7 @@ Shader::Shader(const std::string& fileName)
     for (unsigned int i = 0; i < NUM_SHADERS; i++)
         glAttachShader(m_program, m_shaders[i]);
 
+    //allocate space in the program for these two specific attributes
     glBindAttribLocation(m_program, 0, "position");
     glBindAttribLocation(m_program, 1, "normal");
 
@@ -35,9 +36,6 @@ Shader::Shader(const std::string& fileName)
     m_uniforms[TRANSFORM_OBB] = glGetUniformLocation(m_program, "model_OBB");
     m_uniforms[TRANSFORM_M] = glGetUniformLocation(m_program, "model_mesh");
     m_uniforms[VIEW_POS] = glGetUniformLocation(m_program, "viewPos");
-
-
-
 
 }
 

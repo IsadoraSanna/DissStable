@@ -34,13 +34,13 @@ void main()
         // Diffuse 
         vec3 norm = normalize(normal0);
         vec3 lightDir = normalize(light.position - FragPos);
-        float diff = max(dot(norm, -lightDir), 0.0);
+        float diff = clamp(dot(norm, lightDir), 0.0,1.0);
         vec3 diffuse = light.diffuse * (diff * material.diffuse);
 
         // Specular
         vec3 viewDir = normalize(viewPos - FragPos);
         vec3 reflectDir = reflect(-lightDir, norm);  
-        float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+        float spec = pow(clamp(dot(viewDir, reflectDir), 0.0,1.0), material.shininess);
         vec3 specular = light.specular * (spec * material.specular);  
  
 	gl_FragColor = vec4(ambient+diffuse+specular, 1.0)* clamp(dot(-vec3(0,0,1), normal0),0.0,1.0);

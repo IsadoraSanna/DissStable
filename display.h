@@ -26,18 +26,10 @@ public:
 
 protected:
 private:
-    const Uint8 *keys;
-    void operator=(const Display& display) {}
-    Display(const Display& display) {}
-
+    const Uint8* keys;
     SDL_Window* m_window;
     SDL_GLContext m_glContext;
     bool m_isClosed;
-    bool buttonPressed;
-    float firstX;
-    float firstY;
-    float distanceY;
-    float distanceX;
 };
 
 #endif // DISPLAY_H

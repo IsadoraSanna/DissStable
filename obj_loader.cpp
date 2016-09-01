@@ -86,7 +86,6 @@ void setCameraParameters(std::vector<glm::vec3> vertices, glm::vec3 &centre, flo
     centre.x = (minCoord.x + maxCoord.x) / 2;
     centre.y = (minCoord.y + maxCoord.y) / 2;
     centre.z = (minCoord.z + maxCoord.z) / 2;
-    //radius = sqrt(pow(maxCoord.x - centre.x, 2) + pow(maxCoord.y - centre.y, 2) + pow(maxCoord.z - centre.z, 2));
 
     float coordinatesArray[6] = { qFabs(minCoord.x), qFabs(maxCoord.x),qFabs(minCoord.y), qFabs(maxCoord.y), qFabs(minCoord.z), qFabs(maxCoord.z) };
 

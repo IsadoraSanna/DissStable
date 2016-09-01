@@ -2,22 +2,23 @@
 
 using namespace std;
 
-
-
-SimilarityEvaluator::SimilarityEvaluator( DB_elements& elements, const int CANDIDATE_POINTS)
+SimilarityEvaluator::SimilarityEvaluator( DB_elements& elements, const int CANDIDATE_POINTS, int n_projections)
 {
     this->dbElements = elements;
     DB_SIZE = elements.size();
     this->candidate_points = CANDIDATE_POINTS;
+    this->n_silhouettes = n_projections;
+    GetDBFourierDescriptors();
 }
 
-//******************************Projections****************************
+////PROJECTIONS
 void SimilarityEvaluator::LoadSilhouettesContour(){
+
     string silPath;
     Mat silSRC, gray;
     SilhouetteData temp_silhouette;
 
-    for(int i = 1; i<=N_SILHOUETTES; i++){
+    for(int i = 1; i <= n_silhouettes; i++){
 
        silPath = string("/home/isa/Desktop/UIwithoutQT/Silhouette/silhouette")+ to_string(i) + ".jpg";
 
@@ -39,9 +40,7 @@ void SimilarityEvaluator::LoadSilhouettesContour(){
        else
            std::cerr << "Unable to load file: " << silPath << std::endl;
 
-
     }
-
 }
 
 
@@ -68,17 +67,17 @@ vector<Point2d> SimilarityEvaluator::GetContour(cv::Mat gray){
     return filt_contours;
 }
 
-//******************************Fourier Descriptors****************************
+////FOURIER DESCRIPTORS
 vector<int> SimilarityEvaluator::CompareFourier(){
     float difference = 0.0f;
     vector<tuple<int, float>> scores;
     std::cout << "-------------FOURIER DESCRIPTORS-------------" << std::endl;
-    for(int i = 0; i<N_SILHOUETTES; i++){
+    for(int i = 0; i < n_silhouettes; i++){
            vector<complex<float>> silFD = GetFourierDescriptors(silhouettes.at(i).silhouette, silhouettes.at(i).silIMG);
            //confronta con gli fd di tutti i db elements
            for (int j = 0; j < DB_SIZE; j++){
                difference = ComputeFDDifference(silFD, dbElements.at(j).fd);
-               std::cout << "Silhouette " << i+1 << " - DB element " << j << " - Difference = " << difference << std::endl;
+               std::cout << "Silhouette " << i+1 << " - DB element " << j << " -> Difference = " << difference << std::endl;
                //scores.push_back(difference);
                scores.push_back(make_tuple(j,difference));
            }
@@ -120,14 +119,12 @@ vector<complex<float>> SimilarityEvaluator::GetFourierDescriptors(Silhouette con
         fourier_coeff.push_back((1.0f / n_pixels_contour) * result);
     }
 
+
     fourier_coeff.at(0) = complex<float>(0,0);
 
     norm_factor = abs(fourier_coeff.at(1));
 
     for( unsigned int i = 0; i < fourier_coeff.size(); i++) {
-
-//        fourier_coeff.at(i) = complex<float>(fourier_coeff.at(i).real() / norm_factor, fourier_coeff.at(i).imag() / norm_factor); // normalization
-//        fd.push_back(abs(fourier_coeff.at(i))); // and putting into my vector the absolute value (to eliminate any phase)
         fd.push_back(abs(fourier_coeff.at(i))/norm_factor);
     }
 
@@ -154,13 +151,13 @@ float SimilarityEvaluator::ComputeFDDifference(vector<complex<float>> fd1, vecto
 }
 
 
-//******************************Shape Context****************************
+////SHAPE CONTEXT
 vector<int> SimilarityEvaluator::CompareShapeContext(){
     float difference = 0.0f;
     CmShapeContext shapeContext;
     vector<tuple<int, float>> scores;
     std::cout << "---------SHAPE CONTEXT DESCRIPTORS---------" << std::endl;
-    for(int i = 0; i<N_SILHOUETTES; i++){
+    for(int i = 0; i < n_silhouettes; i++){
            //confronta con gli fd di tutti i db elements
            for (int j = 0; j < DB_SIZE; j++){
                //difference = shapeContext.matchCost(silFD, dbElements.at(j).fd);
@@ -173,7 +170,7 @@ vector<int> SimilarityEvaluator::CompareShapeContext(){
     return FindTop(scores);
 }
 
-//******************************Results Management****************************
+////RESULTS
 vector<int> SimilarityEvaluator::FindTop(vector<tuple<int, float>> scores){
     float min = 1;
     int indexMin = -1;

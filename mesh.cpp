@@ -30,23 +30,26 @@ void Mesh::InitMesh(const IndexedModel& model) {
     glGenVertexArrays(1, &m_vertexArrayObject);
     glBindVertexArray(m_vertexArrayObject);
 
-    //VERTICES POSITION
-    //openGL refers to data for the GPU with buffers
-    glGenBuffers(NUM_BUFFERS, m_vertexArrayBuffers);
-    //treat the buffer as an array
-    glBindBuffer(GL_ARRAY_BUFFER, m_vertexArrayBuffers[POSITION_VB]);
-    //put the data in the buffer
-    glBufferData(GL_ARRAY_BUFFER, model.positions.size() * sizeof(model.positions[0]), &model.positions[0], GL_STATIC_DRAW);
+    //Allocate, assign and bind a Vertex Array Object
+    glGenVertexArrays(1, &m_vertexArrayObject);
+    glBindVertexArray(m_vertexArrayObject);
 
-    //all our data is one attribute (0)
+    //Allocate and assign NUM_BUFFERS Vertex Buffer Objects
+    //NUM_BUFFERS = 3 (position, normal, index)
+    glGenBuffers(NUM_BUFFERS, m_vertexArrayBuffers);
+
+    //VERTICES
+    glBindBuffer(GL_ARRAY_BUFFER, m_vertexArrayBuffers[POSITION_VB]);
+    //Copy vertex data to the first buffer (POSITION_VB = 1)
+    glBufferData(GL_ARRAY_BUFFER, model.positions.size() * sizeof(model.positions[0]), &model.positions[0], GL_STATIC_DRAW);
+    //enable attribute (0)
     glEnableVertexAttribArray(0);
-    //we are referring to attribute 1(0) pos, containing 3 data (x,y,z), which are float, data skipped to find the next attribute, offset
+    //Specify is stored at index 0 and each position contains 3 float (x,y,z)
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
     //NORMALS
     glBindBuffer(GL_ARRAY_BUFFER, m_vertexArrayBuffers[NORMAL_VB]);
     glBufferData(GL_ARRAY_BUFFER, model.normals.size() * sizeof(model.normals[0]), &model.normals[0], GL_STATIC_DRAW);
-
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
@@ -83,9 +86,6 @@ Mesh::~Mesh()
 void Mesh::Draw()
 {
     glBindVertexArray(m_vertexArrayObject);
-    //what you want to draw, offet in the buffer , how much you want to read (how many vertices to draw)
-    //glDrawArrays(GL_TRIANGLES, 0, m_drawCount);
-    //glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
     glDrawElementsBaseVertex(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0, 0);
     glBindVertexArray(0);
 

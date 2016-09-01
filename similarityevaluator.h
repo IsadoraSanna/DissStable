@@ -26,28 +26,33 @@ public:
     int candidate_points;
     int DB_SIZE;
     const int N_BEST = 3;
-    const int N_SILHOUETTES = 3;
+    int n_silhouettes;
     DB_elements dbElements;
 
-    SimilarityEvaluator( DB_elements& elements, const int candidate_points);
+    SimilarityEvaluator(DB_elements& elements, const int candidate_points, int n_projections);
 
     //Projections
     void LoadSilhouettesContour();
+
+    //Fourier
+    vector<int> CompareFourier();
+
+    //Shape Context
+    vector<int> CompareShapeContext();
+
+
+private:
+    vector<SilhouetteData> silhouettes;
+
+    //Projections
     vector<Point2d> GetContour(cv::Mat gray);
 
     //Fourier
     vector<complex<float>> GetFourierDescriptors(Silhouette contour, Mat silImage);
     void GetDBFourierDescriptors();
     float ComputeFDDifference(vector<complex<float>> fd1, vector<complex<float>> fd2);
-    vector<int> CompareFourier();
-
-    //Shape Context
-    vector<int> CompareShapeContext();
 
     vector<int> FindTop(vector<tuple<int, float>> scores);
-private:
-    vector<SilhouetteData> silhouettes;
-
 
 };
 

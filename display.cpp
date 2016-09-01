@@ -26,19 +26,15 @@ Display::Display(int width, int height, const std::string& title) {
     }
 
     m_isClosed = false;
-    buttonPressed = false;
     keys = SDL_GetKeyboardState(NULL);
 
-    distanceY = 0;
-    distanceX = 0;
-
-    //enable the use of z buffer
+    //enables z buffer
     glEnable(GL_DEPTH_TEST);
 
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
 
-    //enables the cube to be transparent by editing alpha channel
+    //enables the cube to be translucent by editing alpha channel
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -65,10 +61,8 @@ void Display::Update(Transform &transform_camera, Transform &transform_OBB)
     while (SDL_PollEvent(&e)) {
         switch (e.type) {
         case SDL_KEYDOWN:
-            if (keys[SDL_SCANCODE_ESCAPE]) {
-                std::cout << "ESC" << std::endl;
-                m_isClosed = true;
-            }
+            if (keys[SDL_SCANCODE_ESCAPE])
+                m_isClosed = true;           
             else if(keys[SDL_SCANCODE_LEFT] && keys[SDL_SCANCODE_B])
                 transform_OBB.m_rot += glm::vec3(0.f,-0.1f,0.f);
             else if(keys[SDL_SCANCODE_UP] && keys[SDL_SCANCODE_B])
@@ -77,7 +71,6 @@ void Display::Update(Transform &transform_camera, Transform &transform_OBB)
                 transform_OBB.m_rot += glm::vec3(0.f,0.1f,0.f);
             else if(keys[SDL_SCANCODE_DOWN] && keys[SDL_SCANCODE_B])
                 transform_OBB.m_rot += glm::vec3(-0.1f,0.f,0.f);
-
             else if(keys[SDL_SCANCODE_LEFT])
                 transform_camera.m_rot += glm::vec3(0.f,-0.1f,0.f);
             else if (keys[SDL_SCANCODE_UP])
@@ -86,11 +79,10 @@ void Display::Update(Transform &transform_camera, Transform &transform_OBB)
                 transform_camera.m_rot += glm::vec3(0.f,0.1f,0.f);
             else if (keys[SDL_SCANCODE_DOWN])
                 transform_camera.m_rot += glm::vec3(-0.1f,0.f,0.f);
-
             else if (keys[SDL_SCANCODE_R]){
                 transform_camera.Reset();
                 transform_OBB.Reset();
-                materialKey = -1;
+                materialKey = -2;
             }
             else if (keys[SDL_SCANCODE_1])
                 materialKey = 0;
@@ -100,32 +92,8 @@ void Display::Update(Transform &transform_camera, Transform &transform_OBB)
                 materialKey = 2;
             else if (keys[SDL_SCANCODE_RETURN])
                 projection = ORTHOGRAPHIC_P;
-            break;
-        case SDL_MOUSEBUTTONDOWN:
-            if (e.button.button == SDL_BUTTON_LEFT) {
-                //if it's the first time
-                    firstX = e.motion.x;
-                    firstY = e.motion.y;
-                    buttonPressed = true;
-                    std::cout << "prima pressione" << std::endl;
-
-            }
-            break;
-        case SDL_MOUSEMOTION:
-            if (buttonPressed) {
-                std::cout << "trascino bottone premuto" << distanceY << ".. " << std::endl;
-                distanceX = (e.motion.x - firstX);
-                distanceY = (e.motion.y - firstY);
-                transform_camera.m_rot += glm::vec3(0.f,distanceY/100,0.f);
-                //transform_camera.m_rot += glm::vec3(distanceX/100,0.f,0.f);
-            }
-            break;
-        case SDL_MOUSEBUTTONUP:
-            std::cout << "rilascio" << std::endl;
-            buttonPressed = false;
-            distanceX = 0;
-            distanceY = 0;
-            break;
+            break;    
+        //case SDL_MOUSEBUTTONDOWN:
         }
     }
 

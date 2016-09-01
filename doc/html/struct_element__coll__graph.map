@@ -1,0 +1,4 @@
+<map id="Element" name="Element">
+<area shape="rect" id="node2" href="$struct_material.html" title="{Material\n|+ shininess\l|}" alt="" coords="5,204,95,281"/>
+<area shape="rect" id="node3" href="$struct_colour.html" title="{Colour\n|+ r\l+ g\l+ b\l|}" alt="" coords="20,5,80,112"/>
+</map>
