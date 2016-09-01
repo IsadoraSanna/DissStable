@@ -17,6 +17,7 @@ void SimilarityEvaluator::LoadSilhouettesContour(){
     string silPath;
     Mat silSRC, gray;
     SilhouetteData temp_silhouette;
+    silhouettes.clear();
 
     for(int i = 1; i <= n_silhouettes; i++){
 
@@ -70,7 +71,7 @@ vector<Point2d> SimilarityEvaluator::GetContour(cv::Mat gray){
 ////FOURIER DESCRIPTORS
 vector<int> SimilarityEvaluator::CompareFourier(){
     float difference = 0.0f;
-    vector<tuple<int, float>> scores;
+    vector<float> scores;
     std::cout << "-------------FOURIER DESCRIPTORS-------------" << std::endl;
     for(int i = 0; i < n_silhouettes; i++){
            vector<complex<float>> silFD = GetFourierDescriptors(silhouettes.at(i).silhouette, silhouettes.at(i).silIMG);
@@ -79,7 +80,7 @@ vector<int> SimilarityEvaluator::CompareFourier(){
                difference = ComputeFDDifference(silFD, dbElements.at(j).fd);
                std::cout << "Silhouette " << i+1 << " - DB element " << j << " -> Difference = " << difference << std::endl;
                //scores.push_back(difference);
-               scores.push_back(make_tuple(j,difference));
+               scores.push_back(difference);
            }
         std::cout << "--------" << std::endl;
     }
@@ -155,45 +156,65 @@ float SimilarityEvaluator::ComputeFDDifference(vector<complex<float>> fd1, vecto
 vector<int> SimilarityEvaluator::CompareShapeContext(){
     float difference = 0.0f;
     CmShapeContext shapeContext;
-    vector<tuple<int, float>> scores;
+    vector<float> scores;
+
     std::cout << "---------SHAPE CONTEXT DESCRIPTORS---------" << std::endl;
+
     for(int i = 0; i < n_silhouettes; i++){
-           //confronta con gli fd di tutti i db elements
-           for (int j = 0; j < DB_SIZE; j++){
-               //difference = shapeContext.matchCost(silFD, dbElements.at(j).fd);
+
+           for (int j = 0; j < DB_SIZE; j++){                        
                difference = shapeContext.matchCost(silhouettes.at(i).silhouette, dbElements.at(j).contour);
+
                std::cout << "Silhouette " << i+1 << " - DB element " << j << " - Difference = " << difference << std::endl;
-               scores.push_back(make_tuple(j,difference));
+
+               scores.push_back(difference);
            }
+
         std::cout << "--------" << std::endl;
     }
+
     return FindTop(scores);
 }
 
 ////RESULTS
-vector<int> SimilarityEvaluator::FindTop(vector<tuple<int, float>> scores){
+vector<int> SimilarityEvaluator::FindTop(vector<float> scores){
     float min = 1;
-    int indexMin = -1;
-    int vecIndex = 0;
+    int indexMin;
+    int index = 0;
     vector<int> best;
+    vector<float> temp_best;
 
     std::cout << "-------------Results-------------" << std::endl;
 
-    for(int j = 0; j < N_BEST; j++)
+    for(int i = 0; i < n_silhouettes; i++)
     {
-        for (unsigned int i = 0 ; i < scores.size(); i++){
-            if(get<1>(scores.at(i)) < min){
-                min = get<1>(scores.at(i));
-                indexMin = get<0>(scores.at(i));
-                vecIndex = i;
+        for (unsigned int j = 0 ; j < DB_SIZE; j++)
+        {
+            if (i == 0)
+                temp_best.push_back(scores.at(index));
+            else
+                if(scores.at(index) < temp_best.at(j))
+                    temp_best.at(j) = scores.at(index);
+
+            index++;
+        }
+    }
+
+    for(int i = 0; i < N_BEST ; i++)
+    {
+        for (unsigned int j = 0 ; j < temp_best.size(); j++)
+        {
+            if(temp_best.at(j)<min){
+                min = temp_best.at(j);
+                indexMin = j;
             }
         }
-        scores.erase(scores.begin()+vecIndex);
-        std::cout << "Best #" << j+1 << " - index " <<indexMin << " - difference " << min << ". Material: " << dbElements.at(indexMin).name << std::endl;
         best.push_back(indexMin);
 
+        std::cout << "Best #" << i+1 << " - index " <<indexMin << " - difference " << min << ". Material: " << dbElements.at(indexMin).name << std::endl;
+
+        temp_best.at(indexMin) = 1;
         min = 1;
-        indexMin = -1;
     }
 
     return best;

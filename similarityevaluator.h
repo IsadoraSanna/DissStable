@@ -52,7 +52,7 @@ private:
     void GetDBFourierDescriptors();
     float ComputeFDDifference(vector<complex<float>> fd1, vector<complex<float>> fd2);
 
-    vector<int> FindTop(vector<tuple<int, float>> scores);
+    vector<int> FindTop(vector<float> scores);
 
 };
 

@@ -114,52 +114,66 @@ int main()
                 switch(i){
                 case 1:               
                     //front projection
-                    pos_transform =  transform_OBB.GetModel() * glm::vec4(cubeMesh->centre.x, cubeMesh->centre.y, -view_distance, 1);
+                    pos_transform =  transform_camera.GetModel() * transform_OBB.GetModel() * glm::vec4(cubeMesh->centre.x, cubeMesh->centre.y, -view_distance, 1);
                     pos_transform /= pos_transform.w;
                     pos = glm::vec3(pos_transform.x, pos_transform.y, pos_transform.z);
-                    up = glm::vec3(0.0f, 1.0f, 0.0f);
+                    up_transform = transform_camera.GetModel() * transform_OBB.GetModel() * glm::vec4(0.0f, 1.0f, 0.0f,1);
+                    up_transform /= up_transform.w;
+                    up = glm::vec3(up_transform.x, up_transform.y, up_transform.z);
                     break;
                 case 2:               
                     //left projection
-                    pos_transform = transform_OBB.GetModel() * glm::vec4(view_distance, cubeMesh->centre.y, cubeMesh->centre.z, 1);
+                    pos_transform = transform_camera.GetModel() * transform_OBB.GetModel() * glm::vec4(view_distance, cubeMesh->centre.y, cubeMesh->centre.z, 1);
                     pos_transform /= pos_transform.w;
                     pos = glm::vec3(pos_transform.x,pos_transform.y,pos_transform.z);
-                    up = glm::vec3(0.0f, 1.0f, 0.0f);
+                    up_transform = transform_camera.GetModel() * transform_OBB.GetModel() * glm::vec4(0.0f, 1.0f, 0.0f,1);
+                    up_transform /= up_transform.w;
+                    up = glm::vec3(up_transform.x, up_transform.y, up_transform.z);
                     break;                
                 case 3:                
                     //top projection
-                    pos_transform = transform_OBB.GetModel() * glm::vec4(cubeMesh->centre.x, view_distance, cubeMesh->centre.z, 1);
+                    pos_transform = transform_camera.GetModel() * transform_OBB.GetModel() * glm::vec4(cubeMesh->centre.x, view_distance, cubeMesh->centre.z, 1);
                     pos_transform /= pos_transform.w;
                     pos = glm::vec3(pos_transform.x, pos_transform.y, pos_transform.z);
-                    up = glm::vec3(0.0f, 0.0f, 1.0f);
+                    up_transform = transform_camera.GetModel() * transform_OBB.GetModel() * glm::vec4(0.0f, 0.0f, 1.0f,1);
+                    up_transform /= up_transform.w;
+                    up = glm::vec3(up_transform.x, up_transform.y, up_transform.z);
                     break;                
                 case 4:
                     //top-front-left projection
-                    pos_transform = transform_OBB.GetModel() * glm::vec4(cubeMesh->centre.x - view_distance, cubeMesh->centre.y + view_distance, cubeMesh->centre.z - view_distance, 1);
+                    pos_transform = transform_camera.GetModel() * transform_OBB.GetModel() * glm::vec4(cubeMesh->centre.x - view_distance, cubeMesh->centre.y + view_distance, cubeMesh->centre.z - view_distance, 1);
                     pos_transform /= pos_transform.w;
                     pos = glm::vec3(pos_transform.x, pos_transform.y, pos_transform.z);
-                    up = glm::vec3(0.0f, 1.0f, 0.0f);
+                    up_transform = transform_camera.GetModel() * transform_OBB.GetModel() * glm::vec4(0.0f, 1.0f, 0.0f,1);
+                    up_transform /= up_transform.w;
+                    up = glm::vec3(up_transform.x, up_transform.y, up_transform.z);
                     break;
                 case 5:
                     //top-back-left projection
-                    pos_transform = transform_OBB.GetModel() * glm::vec4(cubeMesh->centre.x - view_distance, cubeMesh->centre.y + view_distance, cubeMesh->centre.z + view_distance, 1);
+                    pos_transform = transform_camera.GetModel() * transform_OBB.GetModel() * glm::vec4(cubeMesh->centre.x - view_distance, cubeMesh->centre.y + view_distance, cubeMesh->centre.z + view_distance, 1);
                     pos_transform /= pos_transform.w;
                     pos = glm::vec3(pos_transform.x, pos_transform.y, pos_transform.z);
-                    up = glm::vec3(0.0f, 1.0f, 0.0f);
+                    up_transform = transform_camera.GetModel() * transform_OBB.GetModel() * glm::vec4(0.0f, 1.0f, 0.0f,1);
+                    up_transform /= up_transform.w;
+                    up = glm::vec3(up_transform.x, up_transform.y, up_transform.z);
                     break;
                 case 6:
                     //top-back-right projection
-                    pos_transform = transform_OBB.GetModel() * glm::vec4(cubeMesh->centre.x + view_distance, cubeMesh->centre.y + view_distance, cubeMesh->centre.z + view_distance, 1);
+                    pos_transform = transform_camera.GetModel() * transform_OBB.GetModel() * glm::vec4(cubeMesh->centre.x + view_distance, cubeMesh->centre.y + view_distance, cubeMesh->centre.z + view_distance, 1);
                     pos_transform /= pos_transform.w;
                     pos = glm::vec3(pos_transform.x, pos_transform.y, pos_transform.z);
-                    up = glm::vec3(0.0f, 1.0f, 0.0f);
+                    up_transform = transform_camera.GetModel() * transform_OBB.GetModel() * glm::vec4(0.0f, 1.0f, 0.0f,1);
+                    up_transform /= up_transform.w;
+                    up = glm::vec3(up_transform.x, up_transform.y, up_transform.z);
                     break;
                 case 7:
                     //top-front-right projection
-                    pos_transform = transform_OBB.GetModel() * glm::vec4(cubeMesh->centre.x + view_distance, cubeMesh->centre.y + view_distance, cubeMesh->centre.z - view_distance, 1);
+                    pos_transform = transform_camera.GetModel() * transform_OBB.GetModel() * glm::vec4(cubeMesh->centre.x + view_distance, cubeMesh->centre.y + view_distance, cubeMesh->centre.z - view_distance, 1);
                     pos_transform /= pos_transform.w;
                     pos = glm::vec3(pos_transform.x, pos_transform.y, pos_transform.z);
-                    up = glm::vec3(0.0f, 1.0f, 0.0f);
+                    up_transform = transform_camera.GetModel() * transform_OBB.GetModel() * glm::vec4(0.0f, 1.0f, 0.0f,1);
+                    up_transform /= up_transform.w;
+                    up = glm::vec3(up_transform.x, up_transform.y, up_transform.z);
                     break;
                 }
                 camera = Camera(pos, mesh, ASPECT, up, 0.1f, 1000.0f);
