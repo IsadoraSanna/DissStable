@@ -4,5 +4,6 @@ Existing research recognises the critical role played by material assignment on 
 
 We implemented a software aimed to support the end user in this automatic material assignment process with the help of a three-dimensional environment and with a particular focus on reliability, effectiveness and efficiency. Further improvements to the user interface and the reliability of the outcomes in specific contexts are still necessary.
 
+Developed on Ubuntu 16.04 with Qt
 
 The basic mesh loader is inspired from : https://github.com/BennyQBD/ModernOpenGLTutorial
